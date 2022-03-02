@@ -117,11 +117,11 @@ int main()
 	connfd = accept(sockfd, (SA *)&cli, &len);
 	if (connfd < 0)
 	{
-		printf("server accept failed...\n");
+		printf("Server accept failed...\n");
 		exit(0);
 	}
 	else
-		printf("server accept the client...\n");
+		printf("Server accepted a client...\n");
 
 	bzero(buff, MAX);
 
