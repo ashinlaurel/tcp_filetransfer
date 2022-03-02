@@ -60,10 +60,27 @@ int main()
 		printf("Socket successfully created..\n");
 	bzero(&servaddr, sizeof(servaddr));
 
+	// User Input for port and ip -------------------------------
+
+	bzero(buff, sizeof(buff));
+	printf("\nEnter server IP address:");
+
+	n = 0;
+	while ((buff[n++] = getchar()) != '\n')
+		;
+	strcpy(IP_addr, buff);
+
+	bzero(buff, sizeof(buff));
+	printf("\nEnter the server port number:");
+	n = 0;
+	while ((buff[n++] = getchar()) != '\n')
+		;
+	strcpy(port_number, buff);
+
 	// assign IP, PORT
 	servaddr.sin_family = AF_INET;
-	servaddr.sin_addr.s_addr = inet_addr(IP);
-	servaddr.sin_port = htons(PORT);
+	servaddr.sin_addr.s_addr = inet_addr(IP_addr);
+	servaddr.sin_port = htons(atoi(port_number));
 
 	// connect the client socket to server socket
 	if (connect(sockfd, (SA *)&servaddr, sizeof(servaddr)) != 0)
