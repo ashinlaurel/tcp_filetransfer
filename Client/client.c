@@ -8,8 +8,6 @@
 
 // definitions
 #define MAX 1024
-#define PORT 4444
-#define IP "127.0.0.1"
 #define SA struct sockaddr
 
 // function to receive file
@@ -20,16 +18,19 @@ void write_file(int sockfd, char filename[])
 	FILE *fp;
 	// char *filename = "recv.txt";
 	char buffer[10];
+	// bzero(buffer, sizeof(buffer));
 
 	fp = fopen(filename, "w");
 
 	n = recv(sockfd, buffer, sizeof(buffer), 0);
 	if (n <= 0)
 	{
+		printf("[+]Empty File %s received \n", filename);
 		return;
 	}
-	fprintf(fp, "%s", buffer);
-	// bzero(buffer, sizeof(buffer));
+	fputs(buffer, fp);
+
+	printf("[+]Data written in the file %s successfully.\n", filename);
 	fclose(fp);
 	return;
 }
@@ -97,20 +98,11 @@ int main()
 	scanf("%s", filename);
 
 	bzero(buff, sizeof(buff));
-	printf("Requesting file %s from Server ", filename);
+	printf("[+]Requesting file %s from Server \n ", filename);
 	// strcpy(buff, filename);
 	write(sockfd, filename, sizeof(filename));
 
-	// bzero(buff, sizeof(buff));
-	// read(sockfd, buff, sizeof(buff));
-	// printf("Receiving Data : %s \n", buff);
-
-	// addr_size = sizeof(new_addr);
-
-	// 	new_sock = accept(sockfd, (struct sockaddr *)&new_addr, &addr_size);
-	// printf("New Socket: %d", new_sock);
 	write_file(sockfd, filename);
-	printf("[+]Data written in the file successfully.\n");
 
 	// close the socket
 	close(sockfd);

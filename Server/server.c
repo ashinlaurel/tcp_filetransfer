@@ -11,30 +11,8 @@
 
 // definitions
 #define MAX 1024
-#define PORT 4444
 #define IP "127.0.0.1"
 #define SA struct sockaddr
-
-// Function designed for handling messages between client and server.
-// void chatter(int connfd)
-// {
-// 	char buff[MAX];
-// 	int n;
-
-// 	while (1)
-// 	{
-// 		bzero(buff, MAX);
-
-// 		// read the message from client and copy it in buffer. Then print it.
-// 		read(connfd, buff, sizeof(buff));
-// 		printf("From client: %s", buff);
-
-// 		if (strncmp(".", buff, 1) == 0)
-// 		{
-// 			break;
-// 		}
-// 	}
-// }
 
 // function to check whether file exists
 int DoesFileExists(const char *path)
@@ -56,16 +34,22 @@ int DoesFileExists(const char *path)
 void send_file(FILE *fp, int sockfd)
 {
 	int n;
-	char data[10] = {0};
+	char data[15] = {0};
 	int c;
 
-	for (int i = 0; i < 10 && c != EOF; i++)
+	// for (int i = 0; i < 10 && c != EOF; i++)
+	// {
+	// 	c = fgetc(fp);
+	// 	data[i] = c;
+	// }
+	char str[100];
+	if (fgets(str, 11, fp) != NULL)
 	{
-		c = fgetc(fp);
-		data[i] = c;
+		printf("%s", str);
+		strcat(data, str);
 	}
 
-	if (send(sockfd, data, sizeof(data), 0) == -1)
+	if (!write(sockfd, data, strlen(data)))
 	{
 		perror("[-]Error in sending file.");
 		exit(1);
@@ -76,10 +60,15 @@ void send_file(FILE *fp, int sockfd)
 // Driver function
 int main()
 {
-	char filename[50] = "";
+
 	int sockfd, connfd;
 	socklen_t len = 0;
 	struct sockaddr_in servaddr, cli;
+	int n = 0;
+
+	char filename[50] = "";
+	char buff[MAX];
+	char port_number[10] = "4444";
 
 	// socket create and verification
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -92,15 +81,23 @@ int main()
 		printf("Socket successfully created..\n");
 	bzero(&servaddr, sizeof(servaddr));
 
+	// taking input for port number form user
+	bzero(buff, sizeof(buff));
+	printf("\nEnter the server port number:");
+
+	while ((buff[n++] = getchar()) != '\n')
+		;
+	strcpy(port_number, buff);
+
 	// assign IP, PORT
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr = inet_addr(IP);
-	servaddr.sin_port = htons(PORT);
+	servaddr.sin_port = htons(atoi(port_number));
 
 	// Binding newly created socket to given IP and verification
 	if ((bind(sockfd, (SA *)&servaddr, sizeof(servaddr))) != 0)
 	{
-		printf("socket bind failed...\n");
+		printf("Socket bind failed...\n");
 		exit(0);
 	}
 	else
@@ -126,12 +123,7 @@ int main()
 	else
 		printf("server accept the client...\n");
 
-	char buff[MAX];
-	int n;
 	bzero(buff, MAX);
-	// printf("From Server: Hello client. What is your name?\n");
-	// strcpy(buff, "Hello. What is your name?");
-	// write(connfd, buff, sizeof(buff));
 
 	// read the filename sent by the server
 	read(connfd, buff, sizeof(buff));
@@ -153,6 +145,7 @@ int main()
 	else
 	{
 		printf("File does not exists at path '%s'\n", path);
+		printf("Sending Empty file '%s'\n", path);
 	}
 
 	// After chatting close the socket
